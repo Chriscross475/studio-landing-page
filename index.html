@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Mycelium Gaming — studio</title>
+    <style>
+      :root {
+        --bg: #0a0c0b;
+        --fg: #f1f3ee;
+        --muted: #93a89c;
+        --teal: #6fe0c0;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        background: var(--bg); color: var(--fg); overflow-x: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* canvas + glows are fixed: a constant backdrop behind every section */
+      #myc { position: fixed; inset: 0; z-index: -2; opacity: 0.85; }
+      body::before {
+        content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+        background:
+          radial-gradient(60vw 60vw at 80% -14%, rgba(60,200,170,0.15), transparent 60%),
+          radial-gradient(52vw 52vw at -14% 114%, rgba(220,170,90,0.12), transparent 60%);
+      }
+
+      header {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        padding: clamp(20px, 4vw, 40px) clamp(20px, 6vw, 64px);
+        display: flex; justify-content: space-between; align-items: baseline;
+      }
+      .brand { font-weight: 800; letter-spacing: 0.06em; font-size: 16px; }
+      .brand .dot { color: var(--teal); }
+      .tag { color: var(--muted); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; }
+
+      /* ── Screen 1: the network ── */
+      .net { position: relative; height: 100vh; z-index: 1; }
+      .threads { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      .thread { stroke: rgba(120,210,185,0.16); stroke-width: 1.2; transition: stroke 0.3s; }
+      .thread.active { stroke: var(--teal); stroke-dasharray: 4 7; animation: flow 0.7s linear infinite; }
+      @keyframes flow { to { stroke-dashoffset: -11; } }
+
+      .node {
+        position: absolute; transform: translate(-50%, -50%);
+        display: flex; flex-direction: column; align-items: center; gap: 12px;
+        text-decoration: none; color: var(--fg); cursor: pointer;
+      }
+      .orb {
+        position: relative; width: var(--sz); height: var(--sz); border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 85%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 50%, #000));
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 0 26px -4px var(--c);
+        transition: transform 0.4s cubic-bezier(.2,.9,.2,1), box-shadow 0.4s;
+        display: grid; place-items: center;
+      }
+      .orb::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--c); opacity: 0; transform: scale(1); }
+      .icon { font-size: calc(var(--sz) * 0.42); opacity: 0.9; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+      .label { font-weight: 700; font-size: 15px; letter-spacing: 0.02em; transition: color 0.3s; text-align: center; max-width: 130px; }
+      .badge { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: -6px; }
+      .badge.live { color: #6ee7a8; }
+
+      .node:hover .orb, .node:focus-visible .orb { transform: scale(1.28); box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 0 48px -2px var(--c); }
+      .node:hover .orb::after { animation: halo 1.1s ease-out infinite; }
+      @keyframes halo { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 0; transform: scale(2.1); } }
+      .node:hover .label { color: var(--c2); }
+
+      .card {
+        position: absolute; bottom: calc(100% + 14px); left: 50%; transform: translate(-50%, 8px);
+        width: 230px; padding: 14px 16px; border-radius: 14px;
+        background: rgba(14,18,16,0.86); backdrop-filter: blur(10px);
+        border: 1px solid rgba(120,210,185,0.22);
+        opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s;
+        text-align: left; z-index: 8;
+      }
+      .node:hover .card, .node:focus-visible .card { opacity: 1; transform: translate(-50%, 0); }
+      .node.flip .card { bottom: auto; top: calc(100% + 14px); transform: translate(-50%, -8px); }
+      .node.flip:hover .card, .node.flip:focus-visible .card { transform: translate(-50%, 0); }
+      .card h3 { font-size: 17px; font-weight: 800; }
+      .card p { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+      .card .go { margin-top: 10px; font-size: 13px; color: var(--teal); display: inline-flex; gap: 6px; }
+
+      .hub { --sz: clamp(78px, 12vw, 128px); }
+      .hub .orb {
+        background: radial-gradient(circle at 35% 30%, #d7fff2, var(--teal) 55%, #1c4a40);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 0 60px -6px var(--teal);
+        animation: breathe 4s ease-in-out infinite;
+      }
+      @keyframes breathe { 0%,100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 0 48px -8px var(--teal); } 50% { box-shadow: 0 0 0 1px rgba(255,255,255,0.22), 0 0 80px -4px var(--teal); } }
+      .hub .name { font-size: clamp(22px, 4.5vw, 40px); font-weight: 800; letter-spacing: -0.02em;
+        background: linear-gradient(118deg, #f3f1ea, var(--teal) 70%, #e0b15f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .hub .sub { font-size: 12px; letter-spacing: 0.4em; color: var(--teal); text-transform: uppercase; margin-top: 2px; }
+
+      /* ── Scroll cue ── */
+      .cue {
+        position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9;
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+        text-decoration: none; color: var(--muted); transition: color 0.3s;
+        font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      }
+      .cue:hover { color: var(--teal); }
+      .cue .chev { font-size: 22px; line-height: 1; animation: bob 1.6s ease-in-out infinite; }
+      @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+      /* ── Screen 2: community ── */
+      .community {
+        position: relative; z-index: 1; min-height: 100vh;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        text-align: center; padding: clamp(90px, 14vh, 150px) clamp(22px, 6vw, 80px) 40px;
+      }
+      .eyebrow { color: var(--teal); font-size: 13px; letter-spacing: 0.34em; text-transform: uppercase; }
+      .community h2 {
+        margin-top: 14px; font-size: clamp(34px, 7vw, 72px); font-weight: 800; letter-spacing: -0.02em;
+        background: linear-gradient(118deg, #f3f1ea, var(--teal) 70%, #e0b15f); -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .community p { margin-top: 18px; max-width: 560px; color: var(--muted); font-size: clamp(15px, 2.2vw, 19px); line-height: 1.6; }
+      .join { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 34px; }
+      .jcard {
+        display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--fg);
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(120,210,185,0.18); border-radius: 14px;
+        padding: 15px 20px; min-width: 210px; text-align: left;
+        transition: transform 0.3s, border-color 0.3s, background 0.3s;
+      }
+      .jcard:hover { transform: translateY(-4px); border-color: var(--teal); background: rgba(120,210,185,0.06); }
+      .jcard .ji { font-size: 22px; color: var(--teal); }
+      .jcard strong { display: block; font-size: 15px; }
+      .jcard small { color: var(--muted); font-size: 12px; }
+      .cfooter { margin-top: auto; padding-top: 50px; display: flex; gap: 18px; color: var(--muted); font-size: 12px; letter-spacing: 0.04em; }
+
+      @media (max-width: 560px) { .card { width: 200px; } .label { font-size: 13px; } }
+    </style>
+  </head>
+  <body>
+    <canvas id="myc"></canvas>
+
+    <header>
+      <div class="brand">MYCELIUM<span class="dot">·</span>GAMING</div>
+      <div class="tag">a growing network</div>
+    </header>
+
+    <section class="net" id="net">
+      <svg class="threads" id="threads" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <a class="cue" href="#community" aria-label="Community">
+        <span>community</span>
+        <span class="chev">⌄</span>
+      </a>
+    </section>
+
+    <section class="community" id="community">
+      <div class="eyebrow">— the network —</div>
+      <h2>Join the mycelium</h2>
+      <p>Mycelium Gaming grows by connection. Play the experiments, follow the builds, swap ideas — every new node makes the network stronger. Pull up a thread.</p>
+      <div class="join">
+        <a class="jcard" href="#" aria-label="Discord"><span class="ji">✦</span><span><strong>Discord</strong><small>hang out &amp; playtest</small></span></a>
+        <a class="jcard" href="https://github.com/Chriscross475" target="_blank" rel="noopener"><span class="ji">⎇</span><span><strong>GitHub</strong><small>peek at the source</small></span></a>
+        <a class="jcard" href="#"><span class="ji">✎</span><span><strong>Devlog</strong><small>follow the builds</small></span></a>
+      </div>
+      <div class="cfooter"><span>© Mycelium Gaming</span><span>built in the open</span></div>
+    </section>
+
+    <script>
+      // ── Project network data ──
+      const HUB = { id: 'hub', x: 50, y: 50 };
+      const NODES = [
+        { id: 'button',  title: 'The Button', desc: 'A first-person comedic web game — a sarcastic narrator and one very tempting button.', href: '/button/', badge: 'live', icon: '●', c: '#e23b3b', c2: '#ff8a7a', sz: 'clamp(50px,7vw,74px)' },
+        { id: 'sandbox', title: 'Sandbox', desc: 'Collaborative AI-agent orchestration — a kanban that spins up workers to build software.', href: '/sandbox', badge: 'live', icon: '◆', c: '#3b6bd6', c2: '#8fb4ff', sz: 'clamp(50px,7vw,74px)' },
+        { id: 'wetube',  title: 'WeTube', desc: 'A self-hosted video platform — upload, stream, your own corner of the tube.', href: 'https://wetube.duckdns.org', ext: true, badge: 'live', icon: '▶', c: '#8b5cf6', c2: '#c4a8ff', sz: 'clamp(50px,7vw,74px)' },
+        { id: 'civ',     title: 'Civ Cards', desc: 'A civilization-building trading card game rooted in real history. Multiplayer on SpacetimeDB — in progress.', href: '#', badge: 'soon', icon: '⬢', c: '#d9a431', c2: '#f5d98a', sz: 'clamp(48px,7vw,72px)' },
+        { id: 'hypno',   title: 'HypnoAI', desc: 'An AI-guided hypnosis app — characters and guided sessions. In progress.', href: '#', badge: 'soon', icon: '◉', c: '#d6499c', c2: '#f5a8d8', sz: 'clamp(48px,7vw,72px)' },
+        { id: 'more',    title: 'More', desc: 'Games, experiments, and tools — the network keeps growing.', href: '#', badge: 'soon', icon: '+', c: '#7f8c86', c2: '#cfeee2', sz: 'clamp(44px,6vw,62px)' },
+        { id: 'finance', title: 'Finance', desc: 'A market dashboard — charts, flows, signals. (private, in progress)', href: '#', badge: 'soon', icon: '$', c: '#2bb673', c2: '#7ee8b0', sz: 'clamp(46px,6vw,66px)' },
+        { id: 'scd',     title: 'Super Castle Defenders', desc: 'A toon castle-defense romp — build your keep, upgrade, and hold the line. Wishlist soon.', href: '/scd/', badge: 'soon', icon: '♜', c: '#c8743a', c2: '#f0b27a', sz: 'clamp(48px,7vw,72px)' },
+      ];
+      // Ring auto-layout around the hub (stays balanced as nodes are added)
+      const RX = 33, RY = 31;
+      NODES.forEach((n, i) => {
+        const a = -Math.PI / 2 + (i / NODES.length) * Math.PI * 2;
+        n.x = 50 + Math.cos(a) * RX;
+        n.y = 50 + Math.sin(a) * RY;
+      });
+      // Links: a spoke to the hub + a rim edge to the next node (a clean web)
+      const LINKS = [];
+      NODES.forEach((n, i) => { LINKS.push(['hub', n.id]); LINKS.push([n.id, NODES[(i + 1) % NODES.length].id]); });
+
+      const pos = { hub: HUB };
+      NODES.forEach((n) => (pos[n.id] = n));
+
+      // ── Threads (SVG) ──
+      const svg = document.getElementById('threads');
+      const lineEls = {};
+      LINKS.forEach(([a, b]) => {
+        const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l.setAttribute('x1', pos[a].x); l.setAttribute('y1', pos[a].y);
+        l.setAttribute('x2', pos[b].x); l.setAttribute('y2', pos[b].y);
+        l.setAttribute('vector-effect', 'non-scaling-stroke');
+        l.classList.add('thread');
+        svg.appendChild(l);
+        (lineEls[a] ||= []).push(l); (lineEls[b] ||= []).push(l);
+      });
+
+      // ── Nodes (DOM) ──
+      const net = document.getElementById('net');
+      function mountNode(n, isHub) {
+        const a = document.createElement('a');
+        a.className = 'node' + (isHub ? ' hub' : n.y < 45 ? ' flip' : '');
+        a.style.left = n.x + '%'; a.style.top = n.y + '%';
+        if (!isHub) {
+          a.href = n.href; if (n.ext) { a.target = '_blank'; a.rel = 'noopener'; }
+          a.style.setProperty('--sz', n.sz); a.style.setProperty('--c', n.c); a.style.setProperty('--c2', n.c2);
+          a.innerHTML =
+            '<div class="card"><h3>' + n.title + '</h3><p>' + n.desc + '</p>' +
+            '<span class="go">' + (n.badge === 'live' ? 'enter →' : 'soon') + '</span></div>' +
+            '<div class="orb"><span class="icon">' + n.icon + '</span></div>' +
+            '<div class="label">' + n.title + '</div>' +
+            '<div class="badge ' + n.badge + '">' + n.badge + '</div>';
+          a.addEventListener('mouseenter', () => (lineEls[n.id] || []).forEach((l) => l.classList.add('active')));
+          a.addEventListener('mouseleave', () => (lineEls[n.id] || []).forEach((l) => l.classList.remove('active')));
+        } else {
+          a.style.cursor = 'default';
+          a.innerHTML = '<div class="orb"></div><div class="name">Mycelium</div><div class="sub">Gaming</div>';
+        }
+        net.appendChild(a);
+      }
+      mountNode(HUB, true);
+      NODES.forEach((n) => mountNode(n));
+
+      // ── Ambient drifting mycelium (background) ──
+      const c = document.getElementById('myc');
+      const x = c.getContext('2d');
+      let dots = [];
+      function reset() {
+        c.width = innerWidth; c.height = innerHeight;
+        const N = Math.min(46, Math.round((innerWidth * innerHeight) / 40000));
+        dots = Array.from({ length: N }, () => ({
+          x: Math.random() * c.width, y: Math.random() * c.height,
+          vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15,
+        }));
+      }
+      reset(); addEventListener('resize', reset);
+      function draw() {
+        x.clearRect(0, 0, c.width, c.height);
+        for (const d of dots) { d.x += d.vx; d.y += d.vy; if (d.x<0||d.x>c.width) d.vx*=-1; if (d.y<0||d.y>c.height) d.vy*=-1; }
+        for (let i=0;i<dots.length;i++) for (let j=i+1;j<dots.length;j++) {
+          const a=dots[i], b=dots[j], dd=Math.hypot(a.x-b.x,a.y-b.y);
+          if (dd<150) { x.strokeStyle='rgba(120,210,185,'+(1-dd/150)*0.09+')'; x.lineWidth=1; x.beginPath(); x.moveTo(a.x,a.y); x.lineTo(b.x,b.y); x.stroke(); }
+        }
+        for (const d of dots) { x.fillStyle='rgba(150,225,200,0.4)'; x.beginPath(); x.arc(d.x,d.y,1.4,0,7); x.fill(); }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    </script>
+  </body>
+</html>
