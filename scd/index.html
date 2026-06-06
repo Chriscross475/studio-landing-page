@@ -6,132 +6,133 @@
     <title>Super Castle Defenders — Mycelium Gaming</title>
     <style>
       :root {
-        --stone: #2b2620;
-        --stone-d: #16120d;
-        --parch: #f0e3c2;
-        --gold: #e8b54a;
-        --gold-d: #b8862a;
-        --crimson: #b4302e;
-        --muted: #b6a888;
+        --parch: #ece0bf;
+        --parch-d: #ddcca0;
+        --ink: #4a3a22;
+        --ink-soft: #6e5c3c;
+        --wood: #7a5530;
+        --wood-d: #5a3d20;
+        --wood-l: #9c7038;
+        --gold: #e0a72e;
+        --grass: #6ca33a;
+        --grass-d: #4e7d2a;
+        --stone: #9aa4b0;
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
       html { scroll-behavior: smooth; }
       body {
-        background:
-          radial-gradient(80vw 60vh at 50% -10%, rgba(232,181,74,0.16), transparent 60%),
-          linear-gradient(180deg, #1b1610 0%, #120e09 60%, #0c0a07 100%);
-        color: var(--parch); min-height: 100vh;
+        color: var(--ink); min-height: 100vh;
         font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
         -webkit-font-smoothing: antialiased;
+        background:
+          radial-gradient(70vw 50vh at 50% 120%, rgba(108,163,58,0.35), transparent 60%),
+          radial-gradient(60vw 50vh at 50% -10%, rgba(224,167,46,0.22), transparent 55%),
+          radial-gradient(120vw 120vh at 50% 40%, #f3e8c8, #e3d3a8 70%, #d3bf8c 100%);
       }
-      a { color: inherit; }
-      .wrap { max-width: 1040px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
+      /* faint paper fibre */
+      body::before { content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5;
+        background: repeating-linear-gradient(92deg, rgba(120,90,40,0.04) 0 2px, transparent 2px 5px); }
+      .wrap { position: relative; z-index: 1; max-width: 1020px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 44px); }
 
-      /* battlements strip */
-      .battlements { height: 26px; background:
-        repeating-linear-gradient(90deg, var(--stone) 0 30px, transparent 30px 54px) top/auto 16px no-repeat,
-        linear-gradient(var(--stone), var(--stone)) bottom/100% 12px no-repeat;
-        border-bottom: 2px solid #000; opacity: 0.9; }
-
-      .topbar { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
-      .back { text-decoration: none; color: var(--muted); font-size: 14px; letter-spacing: 0.04em; transition: color 0.2s; }
+      .topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+      .back { text-decoration: none; color: var(--wood-d); font-weight: 700; font-size: 14px; }
       .back:hover { color: var(--gold); }
-      .studio { font-size: 13px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+      .studio { font-size: 12px; letter-spacing: 0.16em; color: var(--ink-soft); text-transform: uppercase; }
 
-      /* hero */
-      .hero { text-align: center; padding: clamp(30px, 7vw, 70px) 0 clamp(24px, 5vw, 48px); }
-      .crest { font-size: clamp(44px, 9vw, 84px); line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
-      .hero h1 {
-        margin-top: 14px; font-size: clamp(34px, 8vw, 78px); font-weight: 900; letter-spacing: 0.01em; line-height: 0.98;
-        background: linear-gradient(180deg, #fff5d8, var(--gold) 55%, var(--gold-d));
-        -webkit-background-clip: text; background-clip: text; color: transparent;
-        text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+      /* wooden banner */
+      .banner {
+        margin: clamp(20px,5vw,46px) auto 0; max-width: 660px; text-align: center; position: relative;
+        background: linear-gradient(180deg, #8a6034, #6a4623 60%, #543619);
+        border: 3px solid #3f2a14; border-radius: 14px;
+        box-shadow: 0 10px 26px rgba(60,40,16,0.4), inset 0 2px 0 rgba(255,220,160,0.25), inset 0 -6px 14px rgba(0,0,0,0.35);
+        padding: 18px 40px;
       }
-      .tagline { margin-top: 16px; color: var(--muted); font-size: clamp(16px, 2.6vw, 22px); }
-      .pills { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
-      .pill { font-size: 13px; padding: 7px 14px; border-radius: 999px; background: rgba(232,181,74,0.1);
-        border: 1px solid rgba(232,181,74,0.3); color: var(--parch); }
+      .banner::before, .banner::after { content: ''; position: absolute; top: 50%; width: 26px; height: 26px;
+        background: radial-gradient(circle at 40% 35%, #ffe6a8, var(--gold) 60%, #9a6e16); border-radius: 50%;
+        border: 2px solid #5a3d20; transform: translateY(-50%); }
+      .banner::before { left: -13px; } .banner::after { right: -13px; }
+      .banner h1 {
+        font-size: clamp(26px, 6vw, 52px); font-weight: 900; line-height: 1; letter-spacing: 0.02em;
+        color: #ffe9bf; text-shadow: 0 2px 0 #3f2a14, 0 4px 6px rgba(0,0,0,0.4);
+      }
+      .tagline { text-align: center; margin-top: 18px; font-size: clamp(16px, 2.6vw, 22px); color: var(--ink-soft); font-weight: 600; }
+      .pills { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 18px; }
+      .pill { font-size: 13px; font-weight: 700; padding: 7px 14px; border-radius: 999px; color: #3a2c14;
+        background: linear-gradient(180deg, #f3e3b6, #e2cd95); border: 2px solid #b89a5c; }
 
-      /* key art / trailer frame */
+      /* framed media (parchment card frame, like the reward cards) */
       .frame {
-        position: relative; margin: 30px auto 0; max-width: 880px; aspect-ratio: 16/9; border-radius: 14px;
-        background: repeating-linear-gradient(135deg, #211b14 0 18px, #1a150f 18px 36px);
-        border: 2px solid var(--gold-d); box-shadow: 0 24px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.5);
-        display: grid; place-items: center; text-align: center; color: var(--muted);
+        position: relative; margin: 26px auto 0; border-radius: 16px; overflow: hidden;
+        background: #cdbb8a; border: 3px solid var(--wood); box-shadow: 0 14px 34px rgba(60,40,16,0.35), inset 0 0 0 2px rgba(255,240,200,0.4);
       }
-      .frame .play { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center;
-        background: rgba(232,181,74,0.16); border: 2px solid var(--gold); font-size: 28px; color: var(--gold); }
-      .frame .cap { margin-top: 14px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .frame.hero { max-width: 880px; aspect-ratio: 16/9; }
+      .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .ph { width: 100%; height: 100%; display: grid; place-items: center; text-align: center; color: var(--wood-d);
+        background: repeating-linear-gradient(135deg, #d8c79a 0 16px, #cdbb8a 16px 32px); }
+      .ph .play { width: 70px; height: 70px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto;
+        background: rgba(122,85,48,0.18); border: 3px solid var(--wood); font-size: 26px; color: var(--wood-d); }
+      .ph .cap { margin-top: 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 
-      /* sections */
-      section { padding: clamp(34px, 6vw, 64px) 0; }
-      h2 { font-size: clamp(22px, 4vw, 34px); font-weight: 800; color: var(--gold); letter-spacing: 0.01em; }
-      .lead { margin-top: 14px; max-width: 680px; color: #ded0b0; font-size: clamp(15px, 2.2vw, 18px); line-height: 1.6; }
+      section { padding: clamp(30px, 6vw, 58px) 0; }
+      h2 { font-size: clamp(22px, 4vw, 32px); font-weight: 900; color: var(--wood-d); }
+      .lead { margin-top: 12px; max-width: 680px; font-size: clamp(15px, 2.2vw, 18px); line-height: 1.6; color: #51422a; }
 
-      .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 26px; }
-      .feat { background: rgba(255,255,255,0.03); border: 1px solid rgba(232,181,74,0.16); border-radius: 12px; padding: 18px; }
-      .feat .fi { font-size: 26px; }
-      .feat h3 { margin-top: 8px; font-size: 16px; color: var(--parch); }
-      .feat p { margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+      .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 24px; }
+      .feat { background: linear-gradient(180deg, #f5ead0, #e7d6ad); border: 2px solid #c2a868; border-radius: 14px; padding: 18px;
+        box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), 0 6px 14px rgba(90,60,20,0.12); }
+      .feat .fi { font-size: 26px; } .feat h3 { margin-top: 8px; font-size: 16px; color: var(--wood-d); }
+      .feat p { margin-top: 4px; color: #61512f; font-size: 13px; line-height: 1.45; }
 
-      .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 26px; }
-      .shot { aspect-ratio: 16/10; border-radius: 12px; border: 1px solid rgba(232,181,74,0.18);
-        background: repeating-linear-gradient(135deg, #1f1912 0 14px, #181208 14px 28px);
-        display: grid; place-items: center; color: var(--muted); font-size: 13px; letter-spacing: 0.06em; }
+      .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 24px; }
+      .shots .frame { aspect-ratio: 16/10; margin: 0; }
 
-      /* CTAs */
-      .ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 26px; }
+      .ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 22px; }
       .cta {
-        position: relative; display: inline-flex; align-items: center; gap: 10px;
-        padding: 14px 22px; border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none;
-        background: linear-gradient(180deg, #34291a, #241b10); border: 1px solid var(--gold-d); color: var(--parch);
-        cursor: not-allowed; opacity: 0.85;
+        position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: not-allowed;
+        padding: 14px 22px; border-radius: 12px; font-weight: 800; font-size: 15px; text-decoration: none;
+        color: #ffe9c2; background: linear-gradient(180deg, var(--wood-l), var(--wood-d)); border: 2px solid #3f2a14;
+        box-shadow: inset 0 2px 0 rgba(255,220,160,0.25), 0 6px 14px rgba(60,40,16,0.25);
       }
-      .cta.primary { background: linear-gradient(180deg, var(--gold), var(--gold-d)); color: #221700; border-color: #8a6418; }
-      .cta .soon { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px;
-        background: rgba(0,0,0,0.25); border: 1px solid rgba(0,0,0,0.2); }
-      .cta.primary .soon { background: rgba(34,23,0,0.2); }
+      .cta.primary { color: #3a2600; background: linear-gradient(180deg, #f4cf67, var(--gold)); border-color: #9a6e16; }
+      .cta .soon { font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,0.18); }
 
-      footer { text-align: center; padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
-      footer a { color: var(--gold); text-decoration: none; }
+      footer { text-align: center; padding: 36px 0 60px; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+      footer a { color: var(--wood-d); text-decoration: none; font-weight: 800; }
     </style>
   </head>
   <body>
-    <div class="battlements"></div>
     <div class="wrap">
       <div class="topbar">
         <a class="back" href="/">← back to the network</a>
         <span class="studio">Mycelium · Gaming</span>
       </div>
 
-      <div class="hero">
-        <div class="crest">🏰</div>
-        <h1>SUPER CASTLE<br />DEFENDERS</h1>
-        <p class="tagline">Hold the gates. Rally your defenders. Turn back the horde.</p>
-        <div class="pills">
-          <span class="pill">⚔️ Tower defense</span>
-          <span class="pill">🎨 Toon visuals</span>
-          <span class="pill">🛡️ Wave survival</span>
-        </div>
-        <div class="frame">
-          <div>
-            <div class="play">▶</div>
-            <div class="cap">Trailer &amp; key art — coming soon</div>
-          </div>
-        </div>
+      <div class="banner"><h1>SUPER CASTLE DEFENDERS</h1></div>
+      <p class="tagline">Hold the gates. Rally your defenders. Turn back the horde. 🏰</p>
+      <div class="pills">
+        <span class="pill">⚔️ Tower defense</span>
+        <span class="pill">🎲 Roguelite upgrades</span>
+        <span class="pill">🎨 Toon visuals</span>
+        <span class="pill">🛡️ Wave survival</span>
+      </div>
+
+      <!-- HERO key art: replace .ph with <img src="img/castle.png" alt="..."> -->
+      <div class="frame hero">
+        <div class="ph"><div><div class="play">▶</div><div class="cap">Trailer &amp; key art — coming soon</div></div></div>
       </div>
 
       <section>
         <h2>About the game</h2>
         <p class="lead">
-          Super Castle Defenders is a bright, toon-styled castle-defense romp. Build and upgrade your towers,
-          command your defenders, and hold the line as wave after wave of invaders crash against your walls.
-          Every run pushes your keep a little further — and the horde hits a little harder.
+          Super Castle Defenders is a bright, toon-styled castle-defense roguelite. Build and upgrade your towers,
+          command your hero, and hold the line as wave after wave crashes against your walls. Every level-up offers
+          a choice of rewards — Arcane Beam, Gold Rush, Gold Fury and more — so no two runs play the same.
         </p>
         <div class="features">
-          <div class="feat"><div class="fi">🏰</div><h3>Build your keep</h3><p>Place towers, walls, and traps to shape the battlefield.</p></div>
-          <div class="feat"><div class="fi">⚔️</div><h3>Beat back waves</h3><p>Escalating enemy waves with distinct threats and bosses.</p></div>
-          <div class="feat"><div class="fi">🛡️</div><h3>Upgrade &amp; adapt</h3><p>Spend your spoils to power up between assaults.</p></div>
+          <div class="feat"><div class="fi">🏰</div><h3>Build your keep</h3><p>Place towers and walls to shape the battlefield.</p></div>
+          <div class="feat"><div class="fi">🎲</div><h3>Choose your reward</h3><p>Roguelite level-ups — reroll, banish, stack synergies.</p></div>
+          <div class="feat"><div class="fi">⚔️</div><h3>Beat back waves</h3><p>Escalating enemies and bosses with distinct threats.</p></div>
           <div class="feat"><div class="fi">🎨</div><h3>Toon-lit world</h3><p>A warm, stylised look with punchy, readable combat.</p></div>
         </div>
       </section>
@@ -139,15 +140,16 @@
       <section>
         <h2>Screens</h2>
         <div class="shots">
-          <div class="shot">screenshot — soon</div>
-          <div class="shot">screenshot — soon</div>
-          <div class="shot">screenshot — soon</div>
+          <!-- replace each .ph with <img src="img/castle.png"> etc. -->
+          <div class="frame"><div class="ph"><div class="cap">screenshot — soon</div></div></div>
+          <div class="frame"><div class="ph"><div class="cap">screenshot — soon</div></div></div>
+          <div class="frame"><div class="ph"><div class="cap">screenshot — soon</div></div></div>
         </div>
       </section>
 
       <section>
         <h2>Get it / follow along</h2>
-        <p class="lead">Links go live as the campaign opens up. For now — wishlist's on the way.</p>
+        <p class="lead">Links go live as the campaign opens up. Wishlist's on the way.</p>
         <div class="ctas">
           <a class="cta primary" aria-disabled="true"><span>🎮 Wishlist on Steam</span><span class="soon">soon</span></a>
           <a class="cta" aria-disabled="true"><span>▶ Steam page</span><span class="soon">soon</span></a>
@@ -155,9 +157,7 @@
         </div>
       </section>
 
-      <footer>
-        © Mycelium Gaming · Super Castle Defenders — <a href="/">return to the network →</a>
-      </footer>
+      <footer>© Mycelium Gaming · Super Castle Defenders — <a href="/">return to the network →</a></footer>
     </div>
   </body>
 </html>
